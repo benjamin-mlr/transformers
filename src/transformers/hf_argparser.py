@@ -141,7 +141,9 @@ class HfArgumentParser(ArgumentParser):
             return (*outputs, remaining_args)
         else:
             if remaining_args:
-                raise ValueError(f"Some specified arguments are not used by the HfArgumentParser: {remaining_args}")
+                import pdb
+                pdb.set_trace()
+                raise ValueError(f"Some xspecified arguments are not used by the HfArgumentParser: {remaining_args}")
 
             return (*outputs,)
 
