@@ -22,7 +22,7 @@ class TextDataset(Dataset):
     def __init__(
         self, tokenizer: PreTrainedTokenizer, file_path: str, block_size: int, overwrite_cache=False,
     ):
-        assert os.path.isfile(file_path)
+        assert os.path.isfile(file_path), f"{file_path} not found"
 
         block_size = block_size - tokenizer.num_special_tokens_to_add(pair=False)
 

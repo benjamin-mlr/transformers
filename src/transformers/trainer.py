@@ -133,7 +133,7 @@ def get_tpu_sampler(dataset: Dataset):
 
 class Trainer:
     """
-    Trainer is a simple but feature-complete training and eval loop for PyTorch,
+    Trainer is a simple but feature-complete training and eval loop for PyTorch ,
     optimized for 🤗 Transformers.
 
     Args:
@@ -165,7 +165,8 @@ class Trainer:
     args: TrainingArguments
     data_collator: DataCollator
     train_dataset: Optional[Dataset]
-    eval_dataset: Optional[Dataset]
+    #eval_dataset: Optional[Dataset]
+    eval_datasets: Optional[list]
     compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None
     prediction_loss_only: bool
     tb_writer: Optional["SummaryWriter"] = None
@@ -179,7 +180,8 @@ class Trainer:
         args: TrainingArguments,
         data_collator: Optional[DataCollator] = None,
         train_dataset: Optional[Dataset] = None,
-        eval_dataset: Optional[Dataset] = None,
+        #eval_dataset: Optional[Dataset] = None,
+        eval_datasets: Optional[list]=[None],
         compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None,
         prediction_loss_only=False,
         tb_writer: Optional["SummaryWriter"] = None,
@@ -189,7 +191,8 @@ class Trainer:
         self.args = args
         self.data_collator = data_collator if data_collator is not None else default_data_collator
         self.train_dataset = train_dataset
-        self.eval_dataset = eval_dataset
+        #self.eval_dataset = eval_dataset
+        self.eval_datasets = eval_datasets
         self.compute_metrics = compute_metrics
         self.prediction_loss_only = prediction_loss_only
         self.optimizers = optimizers
@@ -460,7 +463,7 @@ class Trainer:
         logger.info("  Instantaneous batch size per device = %d", self.args.per_device_train_batch_size)
         logger.info("  Total train batch size (w. parallel, distributed & accumulation) = %d", total_train_batch_size)
         logger.info("  Gradient Accumulation steps = %d", self.args.gradient_accumulation_steps)
-        logger.info("  Total optimization steps = %d", t_total)
+        logger.info("  Total optimization stepss = %d", t_total)
 
         self.global_step = 0
         self.epoch = 0
@@ -803,7 +806,8 @@ class Trainer:
             logger.info("Deleting older checkpoint [{}] due to args.save_total_limit".format(checkpoint))
             shutil.rmtree(checkpoint)
 
-    def evaluate(self, eval_dataset: Optional[Dataset] = None) -> Dict[str, float]:
+    def evaluate(self, #eval_dataset: Optional[Dataset] = None,
+                 eval_datasets: Optional[list]=[None]) -> Dict[str, float]:
         """
         Run evaluation and returns metrics.
 
@@ -818,9 +822,14 @@ class Trainer:
         Returns:
             A dictionary containing the evaluation loss and the potential metrics computed from the predictions.
         """
-        eval_dataloader = self.get_eval_dataloader(eval_dataset)
 
-        output = self.prediction_loop(eval_dataloader, description="Evaluation")
+        #eval_dataloader = self.get_eval_dataloader(eval_dataset)
+
+        #output = self.prediction_loop(eval_dataloader, description="Evaluation")
+        for eval_dataset in eval_datasets:
+            eval_dataloader = self.get_eval_dataloader(eval_dataset)
+            output = self.prediction_loop(eval_dataloader, description="Evaluation")
+            self.log(output.metrics)
 
         self.log(output.metrics)
 
